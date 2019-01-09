@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  authservice:
+    container_name: auth-service
+    restart: always
+    build: ./authservice
+    volumes:
+      - ./authservice:/usr/src/app/
+    ports:
+      - 8000:8000
+    depends_on:
+      - authdb
+  authdb:
+    container_name: authdb
+    restart: always
+    build: ./authdb
+    environment:
+      - POSTGRES_PASSWORD=auth
+      - POSTGRES_USER=auth
+      - POSTGRES_DB=auth_testdb
+      - PGDATA=/tmp
+    volumes:
+      - .$HOME/docker/volumes/auth:/var/lib/postgresql/data
+    ports:
+      - 5003:5432
