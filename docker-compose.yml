@@ -11,6 +11,8 @@ services:
       - 8000:8000
     depends_on:
       - authdb
+    links:
+      - authdb
   authdb:
     container_name: authdb
     restart: always
@@ -19,8 +21,7 @@ services:
       - POSTGRES_PASSWORD=auth
       - POSTGRES_USER=auth
       - POSTGRES_DB=auth_testdb
-      - PGDATA=/tmp
     volumes:
-      - .$HOME/docker/volumes/auth:/var/lib/postgresql/data
+      - ./postgres/data/auth:/var/lib/postgresql/data
     ports:
       - 5003:5432
