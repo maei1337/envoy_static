@@ -113,7 +113,7 @@ class UserLogin(Resource):
                     except:
                         return {'message': 'Error occured while login'}, 500
 
-                return {'access_token': access_token, 'refresh_token': refresh_token}, 200
+                    return {'access_token': access_token, 'refresh_token': refresh_token}, 200
 
                 return {'message': 'Invalid credentials'}, 401
 

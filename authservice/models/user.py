@@ -17,7 +17,7 @@ class UserModel(db.Model):
     accepted_user = db.Column(db.Boolean, nullable=False)
     user_role = db.Column(db.String(80))
     created = db.Column(db.DateTime, default=datetime.datetime.now())
-    updated = db.Column(db.DateTime, onupdate=datetime.datetime.now())
+    #updated = db.Column(db.DateTime, onupdate=datetime.datetime.now())
 
     def __init__(self, email, password, first_name, last_name):
         self.email = email

@@ -8,11 +8,21 @@ services:
     volumes:
       - ./authservice:/usr/src/app/
     ports:
-      - 8000:8000
+      - 8001:8000
     depends_on:
       - authdb
     links:
       - authdb
+  dummy-service:
+    container_name: dummy-service
+    restart: always
+    build: ./dummyservice
+    volumes:
+      - ./dummyservice:/usr/src/app/
+    ports:
+      - 8002:8000
+    depends_on:
+      - dummydb
   authdb:
     container_name: authdb
     restart: always
@@ -25,3 +35,15 @@ services:
       - ./postgres/data/auth:/var/lib/postgresql/data
     ports:
       - 5003:5432
+  dummydb:
+    container_name: dummydb
+    restart: always
+    build: ./dummydb
+    environment:
+      - POSTGRES_PASSWORD=dummy
+      - POSTGRES_USER=dummy
+      - POSTGRES_DB=dummydb
+    volumes:
+      - ./postgres/data/dummy:/var/lib/postgresql/data
+    ports:
+      - 5004:5432
