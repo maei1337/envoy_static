@@ -2,12 +2,12 @@ from flask import Flask
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-import os
 from db import db
 from models.dummy import DummyModel
 from resources.dummy import Dummy, DummyList
 import config
 from flask_jwt_extended import JWTManager
+from ma import ma
 
 app = Flask(__name__)
 
@@ -17,6 +17,8 @@ app = Flask(__name__)
 app.config.from_object(config.DevelopmentConfig)
 
 db.init_app(app)
+ma.init_app(app)
+
 api = Api(app)
 migrate = Migrate(app, db)
 jwt = JWTManager(app)

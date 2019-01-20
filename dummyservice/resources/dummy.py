@@ -1,5 +1,8 @@
-from flask_restful import Resource, reqparse, inputs
+from flask_restful import Resource
+from schema.dummy import DummySchema
 from models.dummy import DummyModel
+from marshmallow import ValidationError
+from flask import request
 from flask_jwt_extended import (jwt_refresh_token_required,
                                 get_jwt_identity,
                                 get_jwt_claims,
@@ -7,60 +10,82 @@ from flask_jwt_extended import (jwt_refresh_token_required,
                                 get_raw_jwt
                                 )
 
+############################
+### Marshmallow Schema init
+############################
+dummy_schema = DummySchema()
+dummy_schema_list = DummySchema(many=True)
+
+
 class Dummy(Resource):
+############################
+### GET entry depend on user-identity
+############################
     @jwt_required
     def get(self):
         user_id = get_jwt_identity()
 
         if DummyModel.find_by_userid(user_id):
-            return {'message': [data.json() for data in DummyModel.query.filter_by(user_id=user_id)]}, 200
+            return {'message': dummy_schema_list.dump(DummyModel.query.filter_by(user_id=user_id))}, 200
+        return {'message': 'No Data found'}, 400
 
-        return {'message': 'No Data'}, 400
-
+############################
+### POST new entry depend on user-identity
+############################
     @jwt_required
     def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('string', type=str, required=True, help="This field not left blank")
-        parser.add_argument('int_zahl', type=int, required=True, help="This field not left blank")
-        parser.add_argument('float_zahl', type=float, required=True, help="This field not left blank")
-        parser.add_argument('bool', type=inputs.boolean, required=True, help="This field not left blank")
-        parser.add_argument('text', type=str, required=True, help="This field not left blank")
-
-        data = parser.parse_args()
         user_id = get_jwt_identity()
+        dummy_json = request.get_json()
+        dummy_json["user_id"]=user_id
 
-        if DummyModel.find_by_string(data['string']):
+        try:
+            dummy_data = dummy_schema.load(dummy_json)
+        except ValidationError as err:
+            return err.messages, 400
+
+        if DummyModel.find_by_string(dummy_data.string):
             return {'message': '"String" already exist'}, 400
 
-        product = DummyModel(user_id, **data)
-        product.save_to_db()
+        dummy_data.save_to_db()
 
-        return product.json(), 200
+        return {'message': dummy_schema.dump(dummy_data)}, 200
 
+############################
+### UPDATE a existing entry depend on user-identity
+############################
     @jwt_required
     def put(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('id', type=int, required=True, help="ID field not left blank")
-        parser.add_argument('string', type=str)
-        parser.add_argument('int_zahl', type=int)
-        parser.add_argument('float_zahl', type=float)
-        parser.add_argument('bool', type=inputs.boolean)
-        parser.add_argument('text', type=str)
-
-        data = parser.parse_args()
+        dummy_json = request.get_json()
         user_id = get_jwt_identity()
+        dummy_json["user_id"]=user_id
+        dummy_json["string"]=string
+        dummy_json["float_zahl"]=float
+        dummy_json["bool"]=bool
+        dummy_json["int_zahl"]=int
+        dummy_json["id"]=id
 
-        # select user_id und dann schauen, ob angegebene id zu user_id stimmt!!
+        change_dummy = DummyModel.query.filter_by(id=dummy_json["id"]).first()
 
-        if DummyModel.find_by_id(data['id']):
-            return {'message': '"String" already exist'}, 400
+        # Abfangen wenn es ID nicht gibt des dummy
+        if change_dummy is None or change_dummy.user_id != user_id:
+            return {'message': 'No right credintials to change'}, 400
 
-        product = DummyModel(user_id, **data)
-        product.save_to_db()
+        try:
+            dummy_data = dummy_schema.load(dummy_json)
+        except ValidationError as err:
+            return err.messages, 400
 
-        return product.json(), 200
+        # if DummyModel.find_by_string(dummy_data.string):
+        #     return {'message': '"String" already exist'}, 400
+
+        #dummy_data.save_to_db()
+        #
+        #return {'message': dummy_schema.dump(dummy_data)}, 200
 
 class DummyList(Resource):
+############################
+### GET all Entries
+############################
     @jwt_required
     def get(self):
-        return {'data': [dummy.json() for dummy in DummyModel.query.all()]}, 200
+        return {'message': dummy_schema_list.dump(DummyModel.query.all())}, 200
