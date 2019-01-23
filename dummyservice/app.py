@@ -2,11 +2,11 @@ from flask import Flask
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from db import db
+from flask_jwt_extended import JWTManager
+import config
 from models.dummy import DummyModel
 from resources.dummy import Dummy, DummyList
-import config
-from flask_jwt_extended import JWTManager
+from db import db
 from ma import ma
 
 app = Flask(__name__)
@@ -26,8 +26,11 @@ jwt = JWTManager(app)
 ############################
 ### ADD REST API ENDPOINTS
 ############################
+# USER Endpoints
 api.add_resource(DummyList, '/pch/dummy/v1')
 api.add_resource(Dummy, '/pch/dummy/v1/add')
+# ADMIN Endpoints
+
 
 if __name__ == '__main__':
     app.run()

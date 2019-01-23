@@ -4,12 +4,13 @@ class DummyModel(db.Model):
     __tablename = 'dummy'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer)
     string = db.Column(db.String(80), nullable=False)
     int_zahl = db.Column(db.Integer, nullable=False)
     float_zahl = db.Column(db.Float, nullable=False)
     bool = db.Column(db.Boolean)
     text = db.Column(db.Text)
+    dummy_active = db.Column(db.Boolean)
 
     def save_to_db(self):
         db.session.add(self)
