@@ -37,7 +37,6 @@ class Dummy(Resource):
         dummy_json = request.get_json()
         user_id = get_jwt_identity()
         dummy_json["user_id"]=user_id
-        dummy_json["dummy_active"]=False
 
         try:
             dummy_data = dummy_schema.load(dummy_json)
@@ -94,7 +93,7 @@ class Dummy(Resource):
         try:
             change_dummy.dummy_active = False
         except:
-            return {'message': 'ID angeben'}, 400
+            return {'message': 'Sth. went wrong...'}, 400
 
         change_dummy.save_to_db()
 
@@ -107,7 +106,4 @@ class DummyList(Resource):
 ############################
     @jwt_required
     def get(self):
-
-        # filter by where dummy_active == True
-
-        return {'message': dummy_schema_list.dump(DummyModel.query.all())}, 200
+        return {'message': dummy_schema_list.dump(DummyModel.query.filter_by(dummy_active="True"))}, 200

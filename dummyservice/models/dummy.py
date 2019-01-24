@@ -1,4 +1,6 @@
 from db import db
+import datetime
+import time
 
 class DummyModel(db.Model):
     __tablename = 'dummy'
@@ -11,6 +13,16 @@ class DummyModel(db.Model):
     bool = db.Column(db.Boolean)
     text = db.Column(db.Text)
     dummy_active = db.Column(db.Boolean)
+    created = db.Column(db.DateTime, default=datetime.datetime.now())
+
+    def __init__(self, user_id, string, int_zahl, float_zahl, bool, text):
+        self.user_id = user_id
+        self.string = string
+        self.int_zahl = int_zahl
+        self.float_zahl = float_zahl
+        self.bool = bool
+        self.text = text
+        self.dummy_active = False
 
     def save_to_db(self):
         db.session.add(self)
